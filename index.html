@@ -378,7 +378,6 @@
 
             document.getElementById('struk-grand-total').innerText = formatRupiah(sisa);
 
-            // === GENERATE QRIS PAKE API (PASTI MUNCUL DI PRINT) ===
             const qrisContainer = document.getElementById('struk-qris-container');
             const qrisImg = document.getElementById('qris-image');
             
@@ -399,13 +398,23 @@
                 qrisContainer.style.display = 'block';
                 let stringQRISBaru = buatQRISDinamis(sisa);
                 
-                // Minta API bikin gambar QR
-                qrisImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(stringQRISBaru)}`;
-                
-                // Tunggu gambarnya ke-download sepenuhnya, baru panggil layar Print
+                // === KUNCI PERBAIKAN 1: BIKIN ONLOAD DULUAN ===
                 qrisImg.onload = function() {
+                    clearTimeout(fallbackPrint);
                     setTimeout(() => { window.print(); }, 300);
                 };
+
+                // === KUNCI PERBAIKAN 2: TAMBAH CACHE BUSTER (_t=waktu) ===
+                // Ini memaksa browser merasa kalau QR ini adalah gambar baru setiap kali di-klik,
+                // jadi fungsi onload di atas PASTI berjalan walaupun catatannya ditambah!
+                qrisImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(stringQRISBaru)}&_t=${new Date().getTime()}`;
+                
+                // === KUNCI PERBAIKAN 3: TIMER CADANGAN ===
+                // Kalau internet nyangkut dan onload gagal, dia bakal maksa ngeprint dalam 1.5 detik
+                let fallbackPrint = setTimeout(() => {
+                    window.print();
+                }, 1500);
+
             } else {
                 qrisContainer.style.display = 'none';
                 setTimeout(() => { window.print(); }, 300);
@@ -426,6 +435,7 @@
         }
     </script>
     <script>
+        // SCRIPT PWA
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('./sw.js')
@@ -434,7 +444,5 @@
             });
         }
     </script>
-</body>
-</html>
 </body>
 </html>
