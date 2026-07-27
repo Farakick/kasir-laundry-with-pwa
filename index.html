@@ -408,14 +408,14 @@
                     qrisImg.onload = function() {
                         setTimeout(() => { 
                             window.print(); 
-                            setTimeout(resetForm, 3000); // reset otomatis 3 detik setelah print dipanggil
+                            setTimeout(resetForm, 1500); // reset otomatis 3 detik setelah print dipanggil
                         }, 300);
                     };
                 } else {
                     qrisContainer.style.display = 'none';
                     setTimeout(() => { 
                         window.print(); 
-                        setTimeout(resetForm, 3000); // reset otomatis 3 detik setelah print dipanggil
+                        setTimeout(resetForm, 1500); // reset otomatis 3 detik setelah print dipanggil
                     }, 300);
                 }
             }
